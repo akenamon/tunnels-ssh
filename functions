@@ -1,0 +1,23 @@
+
+function autossh-create {
+        read -p 'Remote Machine: ' R_MACHINE
+        read -p 'Remote User: ' R_USER
+        read -p 'SSH Port: ' SSH_PORT
+        read -p 'Full path for private key: ' PRIVATE_PATH
+        read -p 'Local Port: ' L_PORT
+        read -p 'Remote Port: ' R_PORT
+
+        echo alias auto_$R_MACHINE="'ssh $R_USER@localhost -p $L_PORT'" >>  ~/.bash_aliases
+
+        . ~/.bash_aliases
+        echo -e "Host $R_MACHINE \n \t Hostname  $R_MACHINE \n \t User $R_USER \n \t Port $SSH_PORT \n \t IdentityFIle $PRIVATE_PATH \n \t LocalForward $L_PORT localhost:$R_PORT \n \t ServerAliveInterval 30 \n \t ServerAliveCountMax 3 \n " | sudo tee -a /etc/ssh/ssh_config
+}
+
+function autossh-up {
+        autossh -M 0 -f -T -N "$1"
+}
+
+function autossh-down {
+        ps aux | grep autossh |  grep -v grep | grep  "$1"  | sed 's, \+,:,g'  | cut -d: -f2 | xargs kill -9
+}
+
